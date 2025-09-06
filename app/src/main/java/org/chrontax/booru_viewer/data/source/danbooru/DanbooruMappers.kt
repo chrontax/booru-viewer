@@ -10,7 +10,7 @@ fun DanbooruPostDto.toPost(): Post? {
 
     return Post(
         id = id.toString(),
-        imageUrl = file_url,
+        imageUrl = file_url!!, // safe for not banned or deleted posts
         width = image_width,
         height = image_height,
         tags = tag_string.split(' ').map { it.trim() }.filter { it.isNotEmpty() },
