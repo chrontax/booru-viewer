@@ -6,7 +6,11 @@ import retrofit2.http.Query
 
 interface DanbooruApi {
     @GET("posts.json")
-    suspend fun getPosts(@Query("tags") tags: String): List<DanbooruPostDto>
+    suspend fun getPosts(
+        @Query("tags") tags: String,
+        @Query("page") page: Int,
+        @Query("limit") limit: Int
+    ): List<DanbooruPostDto>
 
     @GET("posts/{id}.json")
     suspend fun getPost(@Path("id") id: UInt): DanbooruPostDto
