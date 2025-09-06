@@ -50,6 +50,9 @@ dependencies {
     implementation(libs.protobuf.javalite)
 
     implementation(libs.retrofit)
+    implementation(libs.moshi.kotlin)
+    ksp(libs.moshi.kotlin.codegen)
+    implementation(libs.converter.moshi)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
