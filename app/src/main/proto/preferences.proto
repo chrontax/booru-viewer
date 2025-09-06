@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option java_package = "org.chrontax.booru_viewer.data.preferences.proto";
+option java_multiple_files = true;
+
+message Preferences {
+    repeated BooruSite sites = 1;
+}
+
+message BooruSite {
+    string id = 1;
+    string name = 2;
+    string url = 3;
+    BooruType type = 4;
+
+    oneof site_specific {
+        DanbooruSettings danbooru_settings = 5;
+        GelbooruSettings gelbooru_settings = 6;
+    }
+}
+
+enum BooruType {
+    DANBOORU = 0;
+    GELBOORU = 1;
+}
+
+message GelbooruSettings {
+    string api_key = 1;
+    string user_id = 2;
+}
+
+message DanbooruSettings {
+    string username = 1;
+    string api_key = 2;
+}
