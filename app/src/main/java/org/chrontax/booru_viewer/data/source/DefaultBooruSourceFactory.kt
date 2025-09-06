@@ -3,6 +3,7 @@ package org.chrontax.booru_viewer.data.source
 import org.chrontax.booru_viewer.data.preferences.proto.BooruSite
 import org.chrontax.booru_viewer.data.preferences.proto.BooruType
 import org.chrontax.booru_viewer.data.source.danbooru.DanbooruSource
+import org.chrontax.booru_viewer.data.source.gelbooru.GelbooruSource
 import retrofit2.Retrofit
 import javax.inject.Inject
 
@@ -17,7 +18,11 @@ class DefaultBooruSourceFactory @Inject constructor(val retrofitBuilder: Retrofi
                 booruSite.danbooruSettings
             )
 
-            BooruType.GELBOORU -> TODO("Gelbooru support is not implemented yet")
+            BooruType.GELBOORU -> GelbooruSource(
+                retrofitBuilder,
+                booruSite.url,
+                booruSite.gelbooruSettings
+            )
             BooruType.UNRECOGNIZED -> error("Unrecognized Booru type")
         }
 }
