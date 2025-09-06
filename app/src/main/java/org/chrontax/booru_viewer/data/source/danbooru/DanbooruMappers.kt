@@ -30,3 +30,5 @@ fun DanbooruPostDto.toPost(): Post? {
 fun List<DanbooruPostDto>.toPosts(): List<Post> = mapNotNull { it.toPost() }
 
 fun DanbooruTagSuggestionDto.toSuggestedTag(): SuggestedTag = SuggestedTag(value, post_count)
+
+fun List<DanbooruTagSuggestionDto>.toSuggestedTags(): List<SuggestedTag> = map { it.toSuggestedTag() }
