@@ -4,8 +4,7 @@ import androidx.datastore.core.DataStore
 import kotlinx.coroutines.flow.Flow
 import org.chrontax.booru_viewer.data.preferences.proto.BooruSite
 import org.chrontax.booru_viewer.data.preferences.proto.Preferences
-import java.net.MalformedURLException
-import java.net.URL
+import org.chrontax.booru_viewer.util.checkUrl
 import javax.inject.Inject
 
 class DefaultPreferencesRepository @Inject constructor(private val preferencesDataStore: DataStore<Preferences>) :
@@ -44,16 +43,5 @@ class DefaultPreferencesRepository @Inject constructor(private val preferencesDa
             currentPreferences.toBuilder()
                 .setSites(siteIndex, booruSite).build()
         }
-    }
-}
-
-fun checkUrl(url: String) {
-    try {
-        val url = URL(url)
-        if (url.protocol != "http" && url.protocol != "https") {
-            throw IllegalArgumentException("Invalid URL protocol: ${url.protocol}")
-        }
-    } catch (e: MalformedURLException) {
-        throw IllegalArgumentException("Invalid URL: $url")
     }
 }
