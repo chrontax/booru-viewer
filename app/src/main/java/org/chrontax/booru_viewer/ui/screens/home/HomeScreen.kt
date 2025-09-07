@@ -9,15 +9,19 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -27,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,10 +48,39 @@ import org.chrontax.booru_viewer.ui.navigation.AppDestination
 fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
     var tagInput by remember { mutableStateOf("") }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Open)
+    var booruDropdownExpanded by remember { mutableStateOf(false) }
+    val booruSiteList by homeViewModel.booruSiteListFlow.collectAsState(emptyList())
 
     ModalNavigationDrawer(
         drawerState = drawerState, drawerContent = {
             ModalDrawerSheet(modifier = Modifier.fillMaxWidth(.8f)) {
+                Button(
+                    onClick = { booruDropdownExpanded = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(homeViewModel.selectedBooruName)
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription = "Select Booru type",
+                        modifier = Modifier.size(16.dp)
+                    )
+
+                    DropdownMenu(
+                        modifier = Modifier.fillMaxWidth(),
+                        expanded = booruDropdownExpanded,
+                        onDismissRequest = { booruDropdownExpanded = false }) {
+                        booruSiteList.forEach { booru ->
+                            DropdownMenuItem(text = {
+                                Text(booru.name)
+                            }, onClick = {
+                                homeViewModel.selectBooru(booru)
+                            })
+                        }
+                    }
+                }
+
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
