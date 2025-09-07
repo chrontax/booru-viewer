@@ -1,6 +1,5 @@
 package org.chrontax.booru_viewer.ui.screens.home
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.chrontax.booru_viewer.data.model.Post
 import org.chrontax.booru_viewer.data.preferences.proto.BooruSite
 import org.chrontax.booru_viewer.data.preferences.proto.BooruType
 import org.chrontax.booru_viewer.data.source.BooruSourceFactory
@@ -22,22 +22,29 @@ class HomeViewModel @Inject constructor(val booruSourceFactory: BooruSourceFacto
     )
     private val currentPage = 0
 
-    var images by mutableStateOf(emptyList<String>())
+    var posts by mutableStateOf(emptyList<Post>())
         private set
     var tags by mutableStateOf(emptyList<String>())
         private set
 
     init {
         viewModelScope.launch {
-            images = booruSource.searchPosts(tags, currentPage, 20).map { it.imageUrl }
+            posts = booruSource.searchPosts(tags, currentPage, 20)
         }
     }
 
     fun addTag(tag: String) {
         if (tag in tags) return
-        tags = tags + tag
+        tags += tag
         viewModelScope.launch {
-            images = booruSource.searchPosts(tags, currentPage, 20).map { it.imageUrl }
+            posts = booruSource.searchPosts(tags, currentPage, 20)
+        }
+    }
+
+    fun removeTag(tag: String) {
+        tags -= tag
+        viewModelScope.launch {
+            posts = booruSource.searchPosts(tags, currentPage, 20)
         }
     }
 }
