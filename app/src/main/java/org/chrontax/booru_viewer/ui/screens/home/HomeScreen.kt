@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import org.chrontax.booru_viewer.ui.components.ImageWithLoadingIndicator
+import org.chrontax.booru_viewer.ui.navigation.AppDestination
 
 @Composable
 fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
@@ -43,8 +45,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Open)
 
     ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
+        drawerState = drawerState, drawerContent = {
             ModalDrawerSheet(modifier = Modifier.fillMaxWidth(.8f)) {
                 OutlinedTextField(
                     modifier = Modifier
@@ -56,16 +57,27 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
-                    onClick = {
+                        .padding(8.dp), onClick = {
                         homeViewModel.addTag(tagInput)
                         tagInput = ""
                     }) {
                     Text("Add Tag")
                 }
+                Icon(
+                    Icons.Filled.Settings,
+                    contentDescription = "Settings",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable {
+                            navController.navigate(AppDestination.Settings.route)
+                        })
                 LazyRow(modifier = Modifier.fillMaxWidth()) {
                     items(homeViewModel.tags) { tag ->
-                        Box(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer).padding(4.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .padding(4.dp)
+                        ) {
                             Row {
                                 Text(tag, modifier = Modifier.padding(4.dp))
                                 Icon(

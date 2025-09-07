@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.chrontax.booru_viewer.ui.screens.home.HomeScreen
+import org.chrontax.booru_viewer.ui.screens.settings.SettingsScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController = rememberNavController()) {
@@ -14,7 +15,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             HomeScreen(navController = navController)
         }
         composable(AppDestination.Settings.route) {
-            // SettingsScreen(navController)
+            SettingsScreen(navController = navController)
         }
     }
 }
