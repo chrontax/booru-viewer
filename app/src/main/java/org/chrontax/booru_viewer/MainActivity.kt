@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
+import org.chrontax.booru_viewer.ui.navigation.AppNavigation
 import org.chrontax.booru_viewer.ui.screens.home.HomeScreen
 import org.chrontax.booru_viewer.ui.theme.BooruViewerTheme
 
@@ -15,7 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BooruViewerTheme {
-                HomeScreen()
+                AppNavigation()
             }
         }
     }
