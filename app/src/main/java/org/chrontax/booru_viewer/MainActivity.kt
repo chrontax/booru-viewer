@@ -4,8 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.chrontax.booru_viewer.data.preferences.PreferencesRepository
@@ -18,6 +29,8 @@ import org.chrontax.booru_viewer.ui.theme.BooruViewerTheme
 import javax.inject.Inject
 import kotlin.uuid.Uuid
 
+private var isAppReady by mutableStateOf(false)
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
@@ -27,7 +40,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            if (preferencesRepository.preferencesFlow.first().sitesCount == 0) {
+            val prefs = preferencesRepository.preferencesFlow.first()
+            if (prefs.sitesCount == 0) {
                 preferencesRepository.addBooruSite(
                     BooruSite.newBuilder().setUrl("https://danbooru.donmai.us")
                         .setType(BooruType.DANBOORU).setName("Danbooru")
@@ -36,13 +50,30 @@ class MainActivity : ComponentActivity() {
                         ).build()
                 )
             }
+            if (prefs.pageLimit == 0) {
+                preferencesRepository.setPageLimit(20)
+            }
+            isAppReady = true
         }
 
         enableEdgeToEdge()
         setContent {
             BooruViewerTheme {
-                AppNavigation()
+                AppInitializer {
+                    AppNavigation()
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun AppInitializer(content: @Composable () -> Unit) {
+    if (isAppReady) {
+        content()
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
         }
     }
 }
