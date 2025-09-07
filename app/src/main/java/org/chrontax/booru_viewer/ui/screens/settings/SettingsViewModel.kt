@@ -20,6 +20,7 @@ import kotlin.uuid.Uuid
 class SettingsViewModel @Inject constructor(private val preferencesRepository: PreferencesRepository) :
     ViewModel() {
     val booruSites = preferencesRepository.preferencesFlow.map { it.sitesList }
+    val pageLimit = preferencesRepository.preferencesFlow.map { it.pageLimit }
     var selectedBooruSite by mutableStateOf<BooruSite?>(null)
         private set
 
@@ -59,6 +60,12 @@ class SettingsViewModel @Inject constructor(private val preferencesRepository: P
                 }
                 selectedBooruSite = booruSites.first().first()
             }
+        }
+    }
+
+    fun setPageLimit(limit: Int) {
+        viewModelScope.launch {
+            preferencesRepository.setPageLimit(limit)
         }
     }
 }

@@ -26,4 +26,15 @@ interface PreferencesRepository {
      * @throws IllegalArgumentException if the site URL is invalid.
      */
     suspend fun updateBooruSite(booruSite: BooruSite)
+
+    /**
+     * Sets the selected Booru site by its ID.
+     * @throws NoSuchElementException if no site with the given ID exists.
+     */
+    suspend fun setSelectedBooruId(id: String)
+
+    /**
+     * Sets the maximum number of posts to fetch per page.
+     */
+    suspend fun setPageLimit(limit: Int)
 }

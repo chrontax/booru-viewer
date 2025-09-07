@@ -5,6 +5,8 @@ option java_multiple_files = true;
 
 message Preferences {
     repeated BooruSite sites = 1;
+    string selected_booru_id = 2;
+    int32 page_limit = 3;
 }
 
 message BooruSite {

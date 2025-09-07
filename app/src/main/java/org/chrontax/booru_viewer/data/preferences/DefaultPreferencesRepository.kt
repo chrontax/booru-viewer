@@ -44,4 +44,19 @@ class DefaultPreferencesRepository @Inject constructor(private val preferencesDa
                 .setSites(siteIndex, booruSite).build()
         }
     }
+
+    override suspend fun setSelectedBooruId(id: String) {
+        preferencesDataStore.updateData { currentPreferences ->
+            if (currentPreferences.sitesList.none { it.id == id }) {
+                throw NoSuchElementException("No site with ID '$id' exists.")
+            }
+            currentPreferences.toBuilder().setSelectedBooruId(id).build()
+        }
+    }
+
+    override suspend fun setPageLimit(limit: Int) {
+        preferencesDataStore.updateData { currentPreferences ->
+            currentPreferences.toBuilder().setPageLimit(limit).build()
+        }
+    }
 }
