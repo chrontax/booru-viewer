@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
@@ -40,16 +39,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import org.chrontax.booru_viewer.ui.components.ImageWithLoadingIndicator
 import org.chrontax.booru_viewer.ui.navigation.AppDestination
+import org.chrontax.booru_viewer.ui.screens.home.components.TagInput
 
 @Composable
 fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
-    var tagInput by remember { mutableStateOf("") }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Open)
     var booruDropdownExpanded by remember { mutableStateOf(false) }
     val booruSiteList by homeViewModel.booruSiteListFlow.collectAsState(emptyList())
+    val suggestedTags by homeViewModel.suggestedTags.collectAsStateWithLifecycle()
+    val tagInput by homeViewModel.tagInput.collectAsStateWithLifecycle()
 
     ModalNavigationDrawer(
         drawerState = drawerState, drawerContent = {
@@ -81,22 +83,12 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                     }
                 }
 
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    value = tagInput,
-                    onValueChange = { tagInput = it },
-                    label = { Text("Tag") })
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp), onClick = {
-                        homeViewModel.addTag(tagInput)
-                        tagInput = ""
-                    }) {
-                    Text("Add Tag")
-                }
+                TagInput(value = tagInput, onValueChange = {
+                    homeViewModel.updateTagInput(it)
+                }, suggestions = suggestedTags, onTagAdded = {
+                    homeViewModel.addTag(tagInput)
+                    homeViewModel.updateTagInput("")
+                }, modifier = Modifier.padding(8.dp))
                 Icon(
                     Icons.Filled.Settings,
                     contentDescription = "Settings",
