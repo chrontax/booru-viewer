@@ -1,6 +1,5 @@
 package org.chrontax.booru_viewer.ui.screens.settings
 
-import android.inputmethodservice.Keyboard
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,18 +21,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import kotlinx.coroutines.flow.first
 import org.chrontax.booru_viewer.ui.screens.settings.compnents.BooruEditor
 
 @Composable
@@ -44,6 +41,8 @@ fun SettingsScreen(
     var booruDropdownExpanded by remember { mutableStateOf(false) }
     val pageLimit by settingsViewModel.pageLimit.collectAsState(20)
     var pageLimitInput by remember { mutableStateOf(pageLimit.toString()) }
+
+    val selectedBooruSite by settingsViewModel.selectedBooruSite.collectAsStateWithLifecycle()
 
     LaunchedEffect(pageLimit) {
         pageLimitInput = pageLimit.toString()
@@ -87,7 +86,7 @@ fun SettingsScreen(
                         .fillMaxWidth()
                         .padding(16.dp),
                     onClick = { booruDropdownExpanded = true }) {
-                    Text(settingsViewModel.selectedBooruSite?.name ?: "Select Booru")
+                    Text(selectedBooruSite?.name ?: "Select Booru")
                     Icon(
                         Icons.Filled.ArrowDropDown,
                         contentDescription = "Select Booru",
@@ -107,9 +106,9 @@ fun SettingsScreen(
                 }
             }
 
-            if (settingsViewModel.selectedBooruSite != null) {
+            if (selectedBooruSite != null) {
                 BooruEditor(
-                    booruSite = settingsViewModel.selectedBooruSite!!,
+                    booruSite = selectedBooruSite!!,
                     onDelete = { settingsViewModel.deleteBooruSite(it) },
                     onSubmit = { settingsViewModel.updateBooruSite(it) })
             }

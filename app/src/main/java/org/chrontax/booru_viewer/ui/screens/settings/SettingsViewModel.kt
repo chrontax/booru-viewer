@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -21,12 +23,13 @@ class SettingsViewModel @Inject constructor(private val preferencesRepository: P
     ViewModel() {
     val booruSites = preferencesRepository.preferencesFlow.map { it.sitesList }
     val pageLimit = preferencesRepository.preferencesFlow.map { it.pageLimit }
-    var selectedBooruSite by mutableStateOf<BooruSite?>(null)
-        private set
+
+    private var _selectedBooruSite = MutableStateFlow<BooruSite?>(null)
+    val selectedBooruSite = _selectedBooruSite.asStateFlow()
 
     init {
         viewModelScope.launch {
-            selectedBooruSite = booruSites.first().firstOrNull()
+            _selectedBooruSite.value = booruSites.first().firstOrNull()
         }
     }
 
@@ -48,17 +51,17 @@ class SettingsViewModel @Inject constructor(private val preferencesRepository: P
     }
 
     fun selectBooruSite(booruSite: BooruSite) {
-        selectedBooruSite = booruSite
+        _selectedBooruSite.value = booruSite
     }
 
     fun deleteBooruSite(id: String) {
         viewModelScope.launch {
             preferencesRepository.removeBooruSite(id)
-            if (selectedBooruSite?.id == id) {
+            if (selectedBooruSite.value?.id == id) {
                 if (booruSites.first().isEmpty()) {
                     createBooruSite()
                 }
-                selectedBooruSite = booruSites.first().first()
+                _selectedBooruSite.value = booruSites.first().first()
             }
         }
     }

@@ -1,8 +1,5 @@
 package org.chrontax.booru_viewer.ui.screens.home
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,12 +31,14 @@ class HomeViewModel @Inject constructor(
         scope = viewModelScope, started = SharingStarted.Eagerly, initialValue = 20
     )
 
-    var posts by mutableStateOf(emptyList<Post>())
-        private set
-    var tags by mutableStateOf(emptyList<String>())
-        private set
-    var selectedBooruName by mutableStateOf("")
-        private set
+    private var _posts = MutableStateFlow(emptyList<Post>())
+    val posts = _posts.asStateFlow()
+
+    private var _tags = MutableStateFlow(emptyList<String>())
+    val tags = _tags.asStateFlow()
+
+    private var _selectedBooruName = MutableStateFlow("")
+    val selectedBooruName = _selectedBooruName.asStateFlow()
 
     private var _suggestedTags = MutableStateFlow(emptyList<SuggestedTag>())
     val suggestedTags = _suggestedTags.asStateFlow()
@@ -58,7 +57,7 @@ class HomeViewModel @Inject constructor(
             val selectedBooruId = prefs.selectedBooruId
             val selectedBooru =
                 prefs.sitesList.find { it.id == selectedBooruId } ?: prefs.sitesList.first()
-            selectedBooruName = selectedBooru.name
+            _selectedBooruName.value = selectedBooru.name
             booruSource = booruSourceFactory.create(selectedBooru)
             refreshPosts()
             tagInput.collectLatest {
@@ -70,13 +69,13 @@ class HomeViewModel @Inject constructor(
     }
 
     fun addTag(tag: String) {
-        if (tag in tags) return
-        tags += tag
+        if (tag in tags.value) return
+        _tags.value += tag
         viewModelScope.launch { refreshPosts() }
     }
 
     fun removeTag(tag: String) {
-        tags -= tag
+        _tags.value -= tag
         viewModelScope.launch { refreshPosts() }
     }
 
@@ -85,7 +84,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun selectBooru(booruSite: BooruSite) {
-        selectedBooruName = booruSite.name
+        _selectedBooruName.value = booruSite.name
         booruSource = booruSourceFactory.create(booruSite)
         viewModelScope.launch {
             preferencesRepository.setSelectedBooruId(booruSite.id)
@@ -96,14 +95,14 @@ class HomeViewModel @Inject constructor(
     fun loadNextPage() {
         currentPage += 1
         viewModelScope.launch {
-            posts += booruSource.searchPosts(tags, currentPage, pageLimit.value)
+            _posts.value += booruSource.searchPosts(tags.value, currentPage, pageLimit.value)
         }
     }
 
     suspend fun refreshPosts() {
         _isRefreshing.value = true
         currentPage = 0
-        posts = booruSource.searchPosts(tags, currentPage, pageLimit.value)
+        _posts.value = booruSource.searchPosts(tags.value, currentPage, pageLimit.value)
         _isRefreshing.value = false
     }
 

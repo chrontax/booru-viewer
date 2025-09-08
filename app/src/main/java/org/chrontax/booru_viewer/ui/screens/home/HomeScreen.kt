@@ -74,6 +74,10 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
     val suggestedTags by homeViewModel.suggestedTags.collectAsStateWithLifecycle()
     val tagInput by homeViewModel.tagInput.collectAsStateWithLifecycle()
 
+    val posts by homeViewModel.posts.collectAsStateWithLifecycle()
+    val tags by homeViewModel.tags.collectAsStateWithLifecycle()
+    val selectedBooruName by homeViewModel.selectedBooruName.collectAsState()
+
     val postListState = rememberLazyListState()
     val postCountBelow = remember {
         derivedStateOf {
@@ -90,7 +94,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
     }
 
     var postViewOverlayEnabled by remember { mutableStateOf(false) }
-    val postViewPagerState = rememberPagerState(pageCount = { homeViewModel.posts.size })
+    val postViewPagerState = rememberPagerState(pageCount = { posts.size })
     val postViewDetailsDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     val isRefreshing by homeViewModel.isRefreshing.collectAsStateWithLifecycle()
@@ -128,7 +132,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                                     .fillMaxWidth()
                                     .padding(16.dp)
                             ) {
-                                val post = homeViewModel.posts[postViewPagerState.currentPage]
+                                val post = posts[postViewPagerState.currentPage]
                                 val propertyModifier =
                                     Modifier
                                         .fillMaxWidth()
@@ -180,7 +184,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                     ) { page ->
                         ImageWithLoadingIndicator(
                             modifier = Modifier.fillMaxWidth(),
-                            imageUrl = homeViewModel.posts[page].imageUrl,
+                            imageUrl = posts[page].imageUrl,
                             contentDescription = null
                         )
                     }
@@ -236,7 +240,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                                 .fillMaxWidth()
                                 .padding(16.dp)
                         ) {
-                            Text(homeViewModel.selectedBooruName)
+                            Text(selectedBooruName)
                             Icon(
                                 Icons.Filled.ArrowDropDown,
                                 contentDescription = "Select Booru type",
@@ -272,7 +276,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                                     navController.navigate(AppDestination.Settings.route)
                                 })
                         LazyRow(modifier = Modifier.fillMaxWidth()) {
-                            items(homeViewModel.tags) { tag ->
+                            items(tags) { tag ->
                                 Box(
                                     modifier = Modifier
                                         .background(MaterialTheme.colorScheme.primaryContainer)
@@ -301,7 +305,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(), state = postListState
                     ) {
-                        itemsIndexed(homeViewModel.posts) { index, post ->
+                        itemsIndexed(posts) { index, post ->
                             ImageWithLoadingIndicator(
                                 imageUrl = post.imageUrl,
                                 contentDescription = null,
