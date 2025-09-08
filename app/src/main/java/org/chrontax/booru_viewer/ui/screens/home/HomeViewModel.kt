@@ -51,9 +51,12 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val firstBooru = booruSiteListFlow.first().first()
-            selectedBooruName = firstBooru.name
-            booruSource = booruSourceFactory.create(firstBooru)
+            val prefs = preferencesRepository.preferencesFlow.first()
+            val selectedBooruId = prefs.selectedBooruId
+            val selectedBooru =
+                prefs.sitesList.find { it.id == selectedBooruId } ?: prefs.sitesList.first()
+            selectedBooruName = selectedBooru.name
+            booruSource = booruSourceFactory.create(selectedBooru)
             posts = booruSource.searchPosts(tags, currentPage, pageLimit.value)
             tagInput.collectLatest {
                 delay(500) // Debounce
