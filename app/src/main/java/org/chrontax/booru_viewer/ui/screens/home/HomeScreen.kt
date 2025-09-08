@@ -256,6 +256,9 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                                         Text(booru.name)
                                     }, onClick = {
                                         homeViewModel.selectBooru(booru)
+                                        scope.launch {
+                                            postListState.scrollToItem(0)
+                                        }
                                     })
                                 }
                             }
@@ -266,6 +269,9 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                         }, suggestions = suggestedTags, onTagAdded = {
                             homeViewModel.addTag(tagInput)
                             homeViewModel.updateTagInput("")
+                            scope.launch {
+                                postListState.scrollToItem(0)
+                            }
                         }, modifier = Modifier.padding(8.dp))
                         Icon(
                             Icons.Filled.Settings,
@@ -292,7 +298,12 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                                                 .padding(2.dp)
                                                 .width(16.dp)
                                                 .align(Alignment.CenterVertically)
-                                                .clickable { homeViewModel.removeTag(tag) })
+                                                .clickable {
+                                                    homeViewModel.removeTag(tag)
+                                                    scope.launch {
+                                                        postListState.scrollToItem(0)
+                                                    }
+                                                })
                                     }
                                 }
                             }
