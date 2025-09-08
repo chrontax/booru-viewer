@@ -47,6 +47,9 @@ class HomeViewModel @Inject constructor(
     private var _tagInput = MutableStateFlow("")
     val tagInput = _tagInput.asStateFlow()
 
+    private var _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
+
     val booruSiteListFlow = preferencesRepository.preferencesFlow.map { it.sitesList }
 
     init {
@@ -57,7 +60,7 @@ class HomeViewModel @Inject constructor(
                 prefs.sitesList.find { it.id == selectedBooruId } ?: prefs.sitesList.first()
             selectedBooruName = selectedBooru.name
             booruSource = booruSourceFactory.create(selectedBooru)
-            posts = booruSource.searchPosts(tags, currentPage, pageLimit.value)
+            refreshPosts()
             tagInput.collectLatest {
                 delay(500) // Debounce
                 _suggestedTags.value =
@@ -69,16 +72,12 @@ class HomeViewModel @Inject constructor(
     fun addTag(tag: String) {
         if (tag in tags) return
         tags += tag
-        viewModelScope.launch {
-            posts = booruSource.searchPosts(tags, currentPage, pageLimit.value)
-        }
+        viewModelScope.launch { refreshPosts() }
     }
 
     fun removeTag(tag: String) {
         tags -= tag
-        viewModelScope.launch {
-            posts = booruSource.searchPosts(tags, currentPage, pageLimit.value)
-        }
+        viewModelScope.launch { refreshPosts() }
     }
 
     fun updateTagInput(input: String) {
@@ -90,7 +89,7 @@ class HomeViewModel @Inject constructor(
         booruSource = booruSourceFactory.create(booruSite)
         viewModelScope.launch {
             preferencesRepository.setSelectedBooruId(booruSite.id)
-            posts = booruSource.searchPosts(tags, currentPage, 20)
+            refreshPosts()
         }
     }
 
@@ -98,6 +97,19 @@ class HomeViewModel @Inject constructor(
         currentPage += 1
         viewModelScope.launch {
             posts += booruSource.searchPosts(tags, currentPage, pageLimit.value)
+        }
+    }
+
+    suspend fun refreshPosts() {
+        _isRefreshing.value = true
+        currentPage = 0
+        posts = booruSource.searchPosts(tags, currentPage, pageLimit.value)
+        _isRefreshing.value = false
+    }
+
+    fun refreshPostsOnPull() {
+        viewModelScope.launch {
+            refreshPosts()
         }
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +38,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +66,7 @@ import org.chrontax.booru_viewer.ui.screens.home.components.PropertyText
 import org.chrontax.booru_viewer.ui.screens.home.components.TagInput
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: NavController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var booruDropdownExpanded by remember { mutableStateOf(false) }
@@ -90,6 +93,8 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
     val postViewPagerState = rememberPagerState(pageCount = { homeViewModel.posts.size })
     val postViewDetailsDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
+    val isRefreshing by homeViewModel.isRefreshing.collectAsStateWithLifecycle()
+
     LaunchedEffect(postViewPagerState.currentPage) {
         postListState.scrollToItem(postViewPagerState.currentPage)
     }
@@ -112,8 +117,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                 }
 
                 ModalNavigationDrawer(
-                    drawerState = postViewDetailsDrawerState,
-                    drawerContent = {
+                    drawerState = postViewDetailsDrawerState, drawerContent = {
                         ModalDrawerSheet(
                             modifier = Modifier
                                 .fillMaxWidth(.8f)
@@ -125,11 +129,22 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                                     .padding(16.dp)
                             ) {
                                 val post = homeViewModel.posts[postViewPagerState.currentPage]
-                                val propertyModifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                                val propertyModifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
                                 PropertyText("ID", post.id.toString(), modifier = propertyModifier)
-                                PropertyText("Score", post.score.toString(), modifier = propertyModifier)
-                                PropertyText("Dimensions", "${post.width}x${post.height}", modifier = propertyModifier)
-                                PropertyText("Rating", post.rating.displayName, modifier = propertyModifier)
+                                PropertyText(
+                                    "Score", post.score.toString(), modifier = propertyModifier
+                                )
+                                PropertyText(
+                                    "Dimensions",
+                                    "${post.width}x${post.height}",
+                                    modifier = propertyModifier
+                                )
+                                PropertyText(
+                                    "Rating", post.rating.displayName, modifier = propertyModifier
+                                )
                                 Spacer(modifier = Modifier.size(8.dp))
                                 Text(
                                     "Tags",
@@ -280,21 +295,27 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                         }
                     }
                 }) {
-                LazyColumn(modifier = Modifier.fillMaxSize(), state = postListState) {
-                    itemsIndexed(homeViewModel.posts) { index, post ->
-                        ImageWithLoadingIndicator(
-                            imageUrl = post.imageUrl,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(post.width.toFloat() / post.height)
-                                .padding(4.dp)
-                                .clickable {
-                                    scope.launch {
-                                        postViewPagerState.scrollToPage(index)
-                                    }
-                                    postViewOverlayEnabled = true
-                                })
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    onRefresh = { homeViewModel.refreshPostsOnPull() }) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(), state = postListState
+                    ) {
+                        itemsIndexed(homeViewModel.posts) { index, post ->
+                            ImageWithLoadingIndicator(
+                                imageUrl = post.imageUrl,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(post.width.toFloat() / post.height)
+                                    .padding(4.dp)
+                                    .clickable {
+                                        scope.launch {
+                                            postViewPagerState.scrollToPage(index)
+                                        }
+                                        postViewOverlayEnabled = true
+                                    })
+                        }
                     }
                 }
             }
