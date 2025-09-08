@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
     private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
     private lateinit var booruSource: BooruSource
-    private val currentPage = 0
+    private var currentPage = 0
     private val pageLimit = preferencesRepository.preferencesFlow.map { it.pageLimit }.stateIn(
         scope = viewModelScope, started = SharingStarted.Eagerly, initialValue = 20
     )
@@ -88,6 +88,13 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             preferencesRepository.setSelectedBooruId(booruSite.id)
             posts = booruSource.searchPosts(tags, currentPage, 20)
+        }
+    }
+
+    fun loadNextPage() {
+        currentPage += 1
+        viewModelScope.launch {
+            posts += booruSource.searchPosts(tags, currentPage, pageLimit.value)
         }
     }
 }

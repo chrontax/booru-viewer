@@ -3,7 +3,6 @@ package org.chrontax.booru_viewer.ui.screens.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
@@ -30,7 +30,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +54,21 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
     val booruSiteList by homeViewModel.booruSiteListFlow.collectAsState(emptyList())
     val suggestedTags by homeViewModel.suggestedTags.collectAsStateWithLifecycle()
     val tagInput by homeViewModel.tagInput.collectAsStateWithLifecycle()
+
+    val postListState = rememberLazyListState()
+    val postCountBelow = remember {
+        derivedStateOf {
+            val lastVisible = postListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = postListState.layoutInfo.totalItemsCount
+            maxOf(0, totalItems - (lastVisible + 1))
+        }
+    }
+
+    LaunchedEffect(postCountBelow.value) {
+        if (postCountBelow.value < 5) {
+            homeViewModel.loadNextPage()
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState, drawerContent = {
@@ -122,18 +139,21 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
             }
         }) {
         Scaffold { paddingValues ->
-            Column(modifier = Modifier.padding(paddingValues)) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(homeViewModel.posts) { post ->
-                        ImageWithLoadingIndicator(
-                            imageUrl = post.imageUrl,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(post.width.toFloat() / post.height)
-                                .padding(4.dp)
-                        )
-                    }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                state = postListState
+            ) {
+                items(homeViewModel.posts) { post ->
+                    ImageWithLoadingIndicator(
+                        imageUrl = post.imageUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(post.width.toFloat() / post.height)
+                            .padding(4.dp)
+                    )
                 }
             }
         }
