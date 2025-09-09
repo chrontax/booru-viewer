@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -242,32 +243,47 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                     }
 
                     ModalDrawerSheet(modifier = Modifier.fillMaxWidth(.8f)) {
-                        Button(
-                            onClick = { booruDropdownExpanded = true },
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp)
+                                .padding(horizontal = 8.dp)
                         ) {
-                            Text(selectedBooruName)
                             Icon(
-                                Icons.Filled.ArrowDropDown,
-                                contentDescription = "Select Booru type",
-                                modifier = Modifier.size(16.dp)
-                            )
+                                Icons.Filled.Settings,
+                                contentDescription = "Settings",
+                                modifier = Modifier
+                                    .clickable {
+                                        navController.navigate(AppDestination.Settings.route)
+                                    }
+                                    .padding(end = 16.dp))
 
-                            DropdownMenu(
-                                modifier = Modifier.fillMaxWidth(),
-                                expanded = booruDropdownExpanded,
-                                onDismissRequest = { booruDropdownExpanded = false }) {
-                                booruSiteList.forEach { booru ->
-                                    DropdownMenuItem(text = {
-                                        Text(booru.name)
-                                    }, onClick = {
-                                        homeViewModel.selectBooru(booru)
-                                        scope.launch {
-                                            postListState.scrollToItem(0)
-                                        }
-                                    })
+                            Button(
+                                onClick = { booruDropdownExpanded = true },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                Text(selectedBooruName)
+                                Icon(
+                                    Icons.Filled.ArrowDropDown,
+                                    contentDescription = "Select Booru type",
+                                    modifier = Modifier.size(16.dp)
+                                )
+
+                                DropdownMenu(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    expanded = booruDropdownExpanded,
+                                    onDismissRequest = { booruDropdownExpanded = false }) {
+                                    booruSiteList.forEach { booru ->
+                                        DropdownMenuItem(text = {
+                                            Text(booru.name)
+                                        }, onClick = {
+                                            homeViewModel.selectBooru(booru)
+                                            scope.launch {
+                                                postListState.scrollToItem(0)
+                                            }
+                                        })
+                                    }
                                 }
                             }
                         }
@@ -281,23 +297,16 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                                 postListState.scrollToItem(0)
                             }
                         }, modifier = Modifier.padding(8.dp))
-                        Icon(
-                            Icons.Filled.Settings,
-                            contentDescription = "Settings",
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .clickable {
-                                    navController.navigate(AppDestination.Settings.route)
-                                })
                         LazyRow(modifier = Modifier.fillMaxWidth()) {
                             items(tags) { tag ->
-                                Box(
-                                    modifier = Modifier
-                                        .background(MaterialTheme.colorScheme.primaryContainer)
-                                        .padding(4.dp)
-                                ) {
+                                Button(onClick = {
+                                    homeViewModel.removeTag(tag)
+                                    scope.launch {
+                                        postListState.scrollToItem(0)
+                                    }
+                                }) {
                                     Row {
-                                        Text(tag, modifier = Modifier.padding(4.dp))
+                                        Text(tag, modifier = Modifier.padding(2.dp))
                                         Icon(
                                             Icons.Filled.Close,
                                             contentDescription = "Remove tag",
@@ -306,12 +315,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                                                 .padding(2.dp)
                                                 .width(16.dp)
                                                 .align(Alignment.CenterVertically)
-                                                .clickable {
-                                                    homeViewModel.removeTag(tag)
-                                                    scope.launch {
-                                                        postListState.scrollToItem(0)
-                                                    }
-                                                })
+                                        )
                                     }
                                 }
                             }
