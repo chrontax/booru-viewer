@@ -3,6 +3,7 @@ package org.chrontax.booru_viewer.data.preferences
 import kotlinx.coroutines.flow.Flow
 import org.chrontax.booru_viewer.data.preferences.proto.BooruSite
 import org.chrontax.booru_viewer.data.preferences.proto.Preferences
+import org.chrontax.booru_viewer.data.preferences.proto.PreviewQuality
 
 /**
  * Repository to manage user preferences.
@@ -37,4 +38,9 @@ interface PreferencesRepository {
      * Sets the maximum number of posts to fetch per page.
      */
     suspend fun setPageLimit(limit: Int)
+
+    /**
+     * Sets the quality of the preview images.
+     */
+    suspend fun setPreviewQuality(quality: PreviewQuality)
 }

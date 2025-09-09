@@ -10,4 +10,6 @@ data class DanbooruPostDto(
     val is_banned: Boolean,
     val is_deleted: Boolean,
     val file_url: String?,
+    val preview_file_url: String?,
+    val large_file_url: String?,
 )

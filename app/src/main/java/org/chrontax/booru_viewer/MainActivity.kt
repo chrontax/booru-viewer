@@ -16,15 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.chrontax.booru_viewer.data.preferences.PreferencesRepository
 import org.chrontax.booru_viewer.data.preferences.proto.BooruSite
 import org.chrontax.booru_viewer.data.preferences.proto.BooruType
 import org.chrontax.booru_viewer.data.preferences.proto.DanbooruSettings
+import org.chrontax.booru_viewer.data.preferences.proto.PreviewQuality
 import org.chrontax.booru_viewer.ui.navigation.AppNavigation
-import org.chrontax.booru_viewer.ui.screens.home.HomeScreen
 import org.chrontax.booru_viewer.ui.theme.BooruViewerTheme
 import javax.inject.Inject
 import kotlin.uuid.Uuid
@@ -53,6 +52,7 @@ class MainActivity : ComponentActivity() {
             if (prefs.pageLimit == 0) {
                 preferencesRepository.setPageLimit(20)
             }
+            preferencesRepository.setPreviewQuality(PreviewQuality.LOW)
             isAppReady = true
         }
 

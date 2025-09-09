@@ -8,5 +8,7 @@ data class Post(
     val height: Int,
     val tags: List<String>,
     val score: Int,
-    val rating: Rating
+    val rating: Rating,
+    val smallPreviewUrl: String,
+    val largePreviewUrl: String
 )

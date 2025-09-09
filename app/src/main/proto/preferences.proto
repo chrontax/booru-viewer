@@ -7,6 +7,7 @@ message Preferences {
     repeated BooruSite sites = 1;
     string selected_booru_id = 2;
     int32 page_limit = 3;
+    PreviewQuality preview_quality = 4;
 }
 
 message BooruSite {
@@ -34,4 +35,10 @@ message GelbooruSettings {
 message DanbooruSettings {
     string username = 1;
     string api_key = 2;
+}
+
+enum PreviewQuality {
+    LOW = 0;
+    HIGH = 1;
+    ORIGINAL = 2;
 }

@@ -20,7 +20,9 @@ fun GelbooruPostDto.toPost(): Post = Post(
             Log.e("Gelbooru", "Unknown rating: $rating")
             Rating.EXPLICIT
         }
-    }
+    },
+    smallPreviewUrl = preview_url,
+    largePreviewUrl = sample_url.ifEmpty { file_url }
 )
 
 fun GelbooruPostsDto.toPosts(): List<Post> = post?.map { it.toPost() } ?: emptyList()

@@ -8,4 +8,6 @@ data class GelbooruPostDto(
     val rating: String,
     val tags: String,
     val file_url: String,
+    val preview_url: String,
+    val sample_url: String,
 )

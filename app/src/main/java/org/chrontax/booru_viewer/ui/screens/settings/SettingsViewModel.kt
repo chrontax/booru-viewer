@@ -15,6 +15,7 @@ import org.chrontax.booru_viewer.data.preferences.PreferencesRepository
 import org.chrontax.booru_viewer.data.preferences.proto.BooruSite
 import org.chrontax.booru_viewer.data.preferences.proto.BooruType
 import org.chrontax.booru_viewer.data.preferences.proto.DanbooruSettings
+import org.chrontax.booru_viewer.data.preferences.proto.PreviewQuality
 import javax.inject.Inject
 import kotlin.uuid.Uuid
 
@@ -27,9 +28,13 @@ class SettingsViewModel @Inject constructor(private val preferencesRepository: P
     private var _selectedBooruSite = MutableStateFlow<BooruSite?>(null)
     val selectedBooruSite = _selectedBooruSite.asStateFlow()
 
+    private var _previewQuality = MutableStateFlow(PreviewQuality.LOW)
+    val previewQuality = _previewQuality.asStateFlow()
+
     init {
         viewModelScope.launch {
             _selectedBooruSite.value = booruSites.first().firstOrNull()
+            _previewQuality.value = preferencesRepository.preferencesFlow.first().previewQuality
         }
     }
 
@@ -70,5 +75,12 @@ class SettingsViewModel @Inject constructor(private val preferencesRepository: P
         viewModelScope.launch {
             preferencesRepository.setPageLimit(limit)
         }
+    }
+
+    fun setPreviewQuality(quality: PreviewQuality) {
+        viewModelScope.launch {
+            preferencesRepository.setPreviewQuality(quality)
+        }
+        _previewQuality.value = quality
     }
 }

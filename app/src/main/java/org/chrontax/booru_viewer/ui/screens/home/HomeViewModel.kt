@@ -50,6 +50,7 @@ class HomeViewModel @Inject constructor(
     val isRefreshing = _isRefreshing.asStateFlow()
 
     val booruSiteListFlow = preferencesRepository.preferencesFlow.map { it.sitesList }
+    val previewQualityFlow = preferencesRepository.preferencesFlow.map { it.previewQuality }
 
     init {
         viewModelScope.launch {

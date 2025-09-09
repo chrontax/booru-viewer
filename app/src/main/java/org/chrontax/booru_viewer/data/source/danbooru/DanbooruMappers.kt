@@ -23,7 +23,9 @@ fun DanbooruPostDto.toPost(): Post? {
                 Log.e("Danbooru", "Unknown rating: $rating")
                 Rating.EXPLICIT
             }
-        }
+        },
+        smallPreviewUrl = preview_file_url ?: return null,
+        largePreviewUrl = large_file_url ?: return null
     )
 }
 

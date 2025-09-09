@@ -31,7 +31,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import org.chrontax.booru_viewer.data.preferences.proto.PreviewQuality
 import org.chrontax.booru_viewer.ui.screens.settings.compnents.BooruEditor
+import org.chrontax.booru_viewer.util.displayName
 
 @Composable
 fun SettingsScreen(
@@ -47,6 +49,9 @@ fun SettingsScreen(
     LaunchedEffect(pageLimit) {
         pageLimitInput = pageLimit.toString()
     }
+
+    var previewQualityDropdownExpanded by remember { mutableStateOf(false) }
+    val previewQuality by settingsViewModel.previewQuality.collectAsStateWithLifecycle()
 
     Scaffold { paddingValues ->
         Column(
@@ -69,6 +74,31 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 label = { Text("Page Limit") })
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                onClick = { previewQualityDropdownExpanded = true }) {
+                Text(previewQuality.displayName())
+                Icon(
+                    Icons.Filled.ArrowDropDown,
+                    contentDescription = "Select Booru",
+                    modifier = Modifier.size(16.dp)
+                )
+                DropdownMenu(
+                    modifier = Modifier.fillMaxWidth(),
+                    expanded = previewQualityDropdownExpanded,
+                    onDismissRequest = { previewQualityDropdownExpanded = false }) {
+                    PreviewQuality.entries.forEach { quality ->
+                        if (quality == PreviewQuality.UNRECOGNIZED) return@forEach
+                        DropdownMenuItem(text = { Text(quality.displayName()) }, onClick = {
+                            settingsViewModel.setPreviewQuality(quality)
+                            previewQualityDropdownExpanded = false
+                        })
+                    }
+                }
+            }
 
             Text("Booru Configuration", modifier = Modifier.padding(16.dp), fontSize = 20.sp)
             Row(modifier = Modifier.fillMaxWidth()) {

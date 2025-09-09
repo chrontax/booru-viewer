@@ -58,13 +58,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import org.chrontax.booru_viewer.data.preferences.proto.PreviewQuality
 import org.chrontax.booru_viewer.ui.components.ImageWithLoadingIndicator
 import org.chrontax.booru_viewer.ui.navigation.AppDestination
 import org.chrontax.booru_viewer.ui.screens.home.components.BoxWithOverlay
 import org.chrontax.booru_viewer.ui.screens.home.components.CopyableText
+import org.chrontax.booru_viewer.ui.screens.home.components.ImageWithPreview
 import org.chrontax.booru_viewer.ui.screens.home.components.PropertyText
 import org.chrontax.booru_viewer.ui.screens.home.components.TagInput
 import org.chrontax.booru_viewer.ui.screens.home.components.ZoomableBox
+import org.chrontax.booru_viewer.util.selectPreviewUrl
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,6 +102,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
     val postViewDetailsDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     val isRefreshing by homeViewModel.isRefreshing.collectAsStateWithLifecycle()
+    val previewQuality by homeViewModel.previewQualityFlow.collectAsStateWithLifecycle(initialValue = PreviewQuality.LOW)
 
     LaunchedEffect(postViewPagerState.currentPage) {
         postListState.scrollToItem(postViewPagerState.currentPage)
@@ -184,9 +188,10 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                         beyondViewportPageCount = 0
                     ) { page ->
                         ZoomableBox {
-                            ImageWithLoadingIndicator(
+                            ImageWithPreview(
                                 modifier = Modifier.fillMaxWidth(),
                                 imageUrl = posts[page].imageUrl,
+                                previewUrl = posts[page].selectPreviewUrl(previewQuality),
                                 contentDescription = null
                             )
                         }
@@ -321,7 +326,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                     ) {
                         itemsIndexed(posts) { index, post ->
                             ImageWithLoadingIndicator(
-                                imageUrl = post.imageUrl,
+                                imageUrl = post.selectPreviewUrl(previewQuality),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .fillMaxWidth()
