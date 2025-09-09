@@ -64,6 +64,7 @@ import org.chrontax.booru_viewer.ui.screens.home.components.BoxWithOverlay
 import org.chrontax.booru_viewer.ui.screens.home.components.CopyableText
 import org.chrontax.booru_viewer.ui.screens.home.components.PropertyText
 import org.chrontax.booru_viewer.ui.screens.home.components.TagInput
+import org.chrontax.booru_viewer.ui.screens.home.components.ZoomableBox
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -182,11 +183,13 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                             .clickable(indication = null, interactionSource = null) {},
                         beyondViewportPageCount = 0
                     ) { page ->
-                        ImageWithLoadingIndicator(
-                            modifier = Modifier.fillMaxWidth(),
-                            imageUrl = posts[page].imageUrl,
-                            contentDescription = null
-                        )
+                        ZoomableBox {
+                            ImageWithLoadingIndicator(
+                                modifier = Modifier.fillMaxWidth(),
+                                imageUrl = posts[page].imageUrl,
+                                contentDescription = null
+                            )
+                        }
                     }
 
                     Row(
