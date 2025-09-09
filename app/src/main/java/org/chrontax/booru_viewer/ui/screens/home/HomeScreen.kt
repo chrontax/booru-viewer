@@ -4,12 +4,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,8 +21,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -108,6 +108,10 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
     LaunchedEffect(postViewPagerState.currentPage) {
         postListState.scrollToItem(postViewPagerState.currentPage)
     }
+
+    val tabs by homeViewModel.tabsFlow.collectAsStateWithLifecycle(emptyList())
+    val selectedTabName by homeViewModel.selectedTabName.collectAsStateWithLifecycle("")
+    var tabDropdownExpanded by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
@@ -260,8 +264,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
 
                             Button(
                                 onClick = { booruDropdownExpanded = true },
-                                modifier = Modifier
-                                    .fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(selectedBooruName)
                                 Icon(
@@ -282,6 +285,54 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel(), navController: Na
                                             scope.launch {
                                                 postListState.scrollToItem(0)
                                             }
+                                        })
+                                    }
+                                }
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(
+                                modifier = Modifier.padding(8.dp),
+                                onClick = { homeViewModel.createTab() }) {
+                                Icon(
+                                    Icons.Filled.Add,
+                                    contentDescription = "Add tab",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+
+                            Button(
+                                onClick = { homeViewModel.deleteSelectedTab() }) {
+                                Icon(
+                                    Icons.Filled.Delete,
+                                    contentDescription = "Delete tab",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+
+                            Button(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                onClick = { tabDropdownExpanded = true }) {
+                                Text(selectedTabName)
+                                Icon(
+                                    Icons.Filled.ArrowDropDown,
+                                    contentDescription = "Select Booru",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                DropdownMenu(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    expanded = tabDropdownExpanded,
+                                    onDismissRequest = { tabDropdownExpanded = false }) {
+                                    tabs.forEach { tab ->
+                                        DropdownMenuItem(text = { Text(tab.name) }, onClick = {
+                                            homeViewModel.selectTab(tab)
+                                            tabDropdownExpanded = false
                                         })
                                     }
                                 }

@@ -5,9 +5,11 @@ option java_multiple_files = true;
 
 message Preferences {
     repeated BooruSite sites = 1;
-    string selected_booru_id = 2;
     int32 page_limit = 3;
     PreviewQuality preview_quality = 4;
+    repeated Tab tabs = 5;
+    repeated string default_tags = 6;
+    string selected_tab_id = 7;
 }
 
 message BooruSite {
@@ -41,4 +43,11 @@ enum PreviewQuality {
     LOW = 0;
     HIGH = 1;
     ORIGINAL = 2;
+}
+
+message Tab {
+    string booru_id = 1;
+    repeated string tags = 2;
+    string name = 3;
+    string id = 4;
 }

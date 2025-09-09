@@ -23,6 +23,7 @@ import org.chrontax.booru_viewer.data.preferences.proto.BooruSite
 import org.chrontax.booru_viewer.data.preferences.proto.BooruType
 import org.chrontax.booru_viewer.data.preferences.proto.DanbooruSettings
 import org.chrontax.booru_viewer.data.preferences.proto.PreviewQuality
+import org.chrontax.booru_viewer.data.preferences.proto.Tab
 import org.chrontax.booru_viewer.ui.navigation.AppNavigation
 import org.chrontax.booru_viewer.ui.theme.BooruViewerTheme
 import javax.inject.Inject
@@ -52,7 +53,25 @@ class MainActivity : ComponentActivity() {
             if (prefs.pageLimit == 0) {
                 preferencesRepository.setPageLimit(20)
             }
-            preferencesRepository.setPreviewQuality(PreviewQuality.LOW)
+            if (prefs.previewQuality == PreviewQuality.UNRECOGNIZED) {
+                preferencesRepository.setPreviewQuality(PreviewQuality.LOW)
+            }
+            if (prefs.defaultTagsCount == 0) {
+                preferencesRepository.setDefaultTags(listOf("rating:safe"))
+            }
+            if (prefs.tabsCount == 0) {
+                val prefs = preferencesRepository.preferencesFlow.first()
+                val firstBooruId = prefs.sitesList.first().id
+                val defaultTags = prefs.defaultTagsList
+                val tabId = Uuid.random().toString()
+
+                preferencesRepository.addTab(
+                    Tab.newBuilder().setName("Default").setBooruId(firstBooruId)
+                        .setId(tabId).addAllTags(defaultTags).build()
+                )
+                preferencesRepository.selectTab(tabId)
+            }
+
             isAppReady = true
         }
 

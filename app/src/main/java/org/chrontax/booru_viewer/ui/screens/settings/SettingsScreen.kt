@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -53,11 +55,19 @@ fun SettingsScreen(
     var previewQualityDropdownExpanded by remember { mutableStateOf(false) }
     val previewQuality by settingsViewModel.previewQuality.collectAsStateWithLifecycle()
 
+    val defaultTags by settingsViewModel.defaultTags.collectAsStateWithLifecycle(emptyList())
+    var defaultTagsInput by remember { mutableStateOf(defaultTags.joinToString(" ")) }
+
+    LaunchedEffect(defaultTags) {
+        defaultTagsInput = defaultTags.joinToString(" ")
+    }
+
     Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
             OutlinedTextField(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -74,6 +84,20 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 label = { Text("Page Limit") })
+
+            OutlinedTextField(
+                value = defaultTagsInput,
+                singleLine = true,
+                label = { Text("Default tags") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                onValueChange = {
+                    defaultTagsInput = it
+                    val newTags = it.split(" ").filter { tag -> tag.isNotEmpty() }
+                    settingsViewModel.setDefaultTags(newTags)
+                }
+            )
 
             Button(
                 modifier = Modifier
