@@ -94,6 +94,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadNextPage() {
+        if (_isRefreshing.value) return
         currentPage += 1
         viewModelScope.launch {
             _posts.value += booruSource.searchPosts(tags.value, currentPage, pageLimit.value)

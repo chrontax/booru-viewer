@@ -22,7 +22,7 @@ fun CopyableText(text: AnnotatedString, modifier: Modifier = Modifier, copyDataL
                 clipboard.setClipEntry(
                     ClipEntry(
                         ClipData.newPlainText(
-                            copyDataLabel, text
+                            copyDataLabel, copyDataValue
                         )
                     )
                 )
