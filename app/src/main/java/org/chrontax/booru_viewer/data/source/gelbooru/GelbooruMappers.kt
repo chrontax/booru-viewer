@@ -2,6 +2,7 @@ package org.chrontax.booru_viewer.data.source.gelbooru
 
 import android.util.Log
 import org.chrontax.booru_viewer.data.model.Post
+import org.chrontax.booru_viewer.data.model.PostType
 import org.chrontax.booru_viewer.data.model.Rating
 import org.chrontax.booru_viewer.data.model.SuggestedTag
 
@@ -22,7 +23,8 @@ fun GelbooruPostDto.toPost(): Post = Post(
         }
     },
     smallPreviewUrl = preview_url,
-    largePreviewUrl = sample_url.ifEmpty { file_url }
+    largePreviewUrl = sample_url.ifEmpty { file_url },
+    type = if (file_url.endsWith("gif")) PostType.GIF else PostType.IMAGE
 )
 
 fun GelbooruPostsDto.toPosts(): List<Post> = post?.map { it.toPost() } ?: emptyList()

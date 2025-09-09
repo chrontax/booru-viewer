@@ -10,5 +10,6 @@ data class Post(
     val score: Int,
     val rating: Rating,
     val smallPreviewUrl: String,
-    val largePreviewUrl: String
+    val largePreviewUrl: String,
+    val type: PostType,
 )

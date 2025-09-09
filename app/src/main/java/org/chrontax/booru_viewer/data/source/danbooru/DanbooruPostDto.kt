@@ -12,4 +12,5 @@ data class DanbooruPostDto(
     val file_url: String?,
     val preview_file_url: String?,
     val large_file_url: String?,
+    val file_ext: String?,
 )

@@ -2,6 +2,7 @@ package org.chrontax.booru_viewer.data.source.danbooru
 
 import android.util.Log
 import org.chrontax.booru_viewer.data.model.Post
+import org.chrontax.booru_viewer.data.model.PostType
 import org.chrontax.booru_viewer.data.model.Rating
 import org.chrontax.booru_viewer.data.model.SuggestedTag
 
@@ -25,7 +26,8 @@ fun DanbooruPostDto.toPost(): Post? {
             }
         },
         smallPreviewUrl = preview_file_url ?: return null,
-        largePreviewUrl = large_file_url ?: return null
+        largePreviewUrl = large_file_url ?: return null,
+        type = if (file_ext == "gif") PostType.GIF else PostType.IMAGE
     )
 }
 
