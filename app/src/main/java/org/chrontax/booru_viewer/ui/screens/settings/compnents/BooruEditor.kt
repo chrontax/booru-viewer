@@ -37,12 +37,12 @@ fun BooruEditor(
     var typeDropdownExpanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        OutlinedTextField(value = name, onValueChange = {
+        OutlinedTextField(value = name, singleLine = true, onValueChange = {
             name = it
             booruBuilder.name = it
         }, modifier = Modifier.fillMaxWidth(), label = { Text("Name") })
 
-        OutlinedTextField(value = url, onValueChange = {
+        OutlinedTextField(value = url, singleLine = true, onValueChange = {
             url = it
             booruBuilder.url = it
         }, modifier = Modifier.fillMaxWidth(), isError = !isUrlValid, label = { Text("URL") })

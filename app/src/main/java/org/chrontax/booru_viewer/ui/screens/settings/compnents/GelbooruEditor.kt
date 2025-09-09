@@ -19,13 +19,13 @@ fun GelbooruEditor(settings: GelbooruSettings, onSettingsChange: (GelbooruSettin
     var userId by remember(settings) { mutableStateOf(settings.userId) }
 
     Column {
-        OutlinedTextField(value = apiKey, onValueChange = {
+        OutlinedTextField(value = apiKey, singleLine = true, onValueChange = {
             apiKey = it
             settingsBuilder.apiKey = it
             onSettingsChange(settingsBuilder.build())
         }, modifier = Modifier.fillMaxWidth(), label = { Text("API Key") })
 
-        OutlinedTextField(value = userId, onValueChange = {
+        OutlinedTextField(value = userId, singleLine = true, onValueChange = {
             userId = it
             settingsBuilder.userId = it
             onSettingsChange(settingsBuilder.build())

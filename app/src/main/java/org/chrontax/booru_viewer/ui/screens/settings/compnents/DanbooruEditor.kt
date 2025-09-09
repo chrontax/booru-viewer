@@ -19,13 +19,13 @@ fun DanbooruEditor(settings: DanbooruSettings, onSettingsChange: (DanbooruSettin
     var username by remember(settings) { mutableStateOf(settings.username) }
 
     Column {
-        OutlinedTextField(value = apiKey, onValueChange = {
+        OutlinedTextField(value = apiKey, singleLine = true, onValueChange = {
             apiKey = it
             settingsBuilder.apiKey = it
             onSettingsChange(settingsBuilder.build())
         }, modifier = Modifier.fillMaxWidth(), label = { Text("API Key") })
 
-        OutlinedTextField(value = username, onValueChange = {
+        OutlinedTextField(value = username, singleLine = true, onValueChange = {
             username = it
             settingsBuilder.username = it
             onSettingsChange(settingsBuilder.build())

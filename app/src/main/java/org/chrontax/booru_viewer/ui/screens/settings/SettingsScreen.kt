@@ -60,10 +60,11 @@ fun SettingsScreen(
                 onValueChange = {
                     pageLimitInput = it
                     val newLimit = it.toIntOrNull() ?: 0
-                    if (newLimit >= 0) {
+                    if (newLimit > 0) {
                         settingsViewModel.setPageLimit(newLimit)
                     }
                 },
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),

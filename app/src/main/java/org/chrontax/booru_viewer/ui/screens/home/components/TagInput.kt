@@ -56,6 +56,7 @@ fun TagInput(
                 value = value,
                 onValueChange = onValueChange,
                 label = { Text("Tag") },
+                singleLine = true,
                 modifier = Modifier
                     .onSizeChanged { textFieldSize = it }
                     .onFocusChanged {
