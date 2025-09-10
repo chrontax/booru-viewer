@@ -22,8 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.chrontax.booru_viewer.data.preferences.proto.BooruSite
 import org.chrontax.booru_viewer.data.preferences.proto.BooruType
+import org.chrontax.booru_viewer.ui.components.DefaultTextField
+import org.chrontax.booru_viewer.ui.components.DropdownButton
 import org.chrontax.booru_viewer.util.checkUrl
 import org.chrontax.booru_viewer.util.displayName
+import kotlin.random.Random
 
 @Composable
 fun BooruEditor(
@@ -37,44 +40,34 @@ fun BooruEditor(
     var typeDropdownExpanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        OutlinedTextField(value = name, singleLine = true, onValueChange = {
-            name = it
-            booruBuilder.name = it
-        }, modifier = Modifier.fillMaxWidth(), label = { Text("Name") })
+        DefaultTextField(
+            value = name, onValueChange = {
+                name = it
+                booruBuilder.name = it
+            }, label = "Name"
+        )
 
-        OutlinedTextField(value = url, singleLine = true, onValueChange = {
-            url = it
-            booruBuilder.url = it
-        }, modifier = Modifier.fillMaxWidth(), isError = !isUrlValid, label = { Text("URL") })
+        DefaultTextField(
+            value = url, onValueChange = {
+                url = it
+                booruBuilder.url = it
+            }, isError = !isUrlValid, label = "URL"
+        )
 
-        Button(
-            onClick = { typeDropdownExpanded = true },
+        DropdownButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp), value = type.displayName()
         ) {
-            Text(type.displayName())
-            Icon(
-                Icons.Filled.ArrowDropDown,
-                contentDescription = "Select Booru type",
-                modifier = Modifier.size(16.dp)
-            )
-
-            DropdownMenu(
-                modifier = Modifier.fillMaxWidth(),
-                expanded = typeDropdownExpanded,
-                onDismissRequest = { typeDropdownExpanded = false }) {
-                BooruType.entries.forEach { booruType ->
-                    if (booruType != BooruType.UNRECOGNIZED) {
-                        DropdownMenuItem(text = {
-                            Text(booruType.displayName())
-                        }, onClick = {
-                            type = booruType
-                            booruBuilder.type = booruType
-                            typeDropdownExpanded = false
-                        })
-                    }
-                }
+            BooruType.entries.forEach { booruType ->
+                if (booruType == BooruType.UNRECOGNIZED) return@forEach
+                DropdownMenuItem(text = {
+                    Text(booruType.displayName())
+                }, onClick = {
+                    type = booruType
+                    booruBuilder.type = booruType
+                    typeDropdownExpanded = false
+                })
             }
         }
 

@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import org.chrontax.booru_viewer.data.preferences.proto.DanbooruSettings
+import org.chrontax.booru_viewer.ui.components.DefaultTextField
 
 @Composable
 fun DanbooruEditor(settings: DanbooruSettings, onSettingsChange: (DanbooruSettings) -> Unit) {
@@ -19,17 +20,17 @@ fun DanbooruEditor(settings: DanbooruSettings, onSettingsChange: (DanbooruSettin
     var username by remember(settings) { mutableStateOf(settings.username) }
 
     Column {
-        OutlinedTextField(value = apiKey, singleLine = true, onValueChange = {
+        DefaultTextField(value = apiKey, onValueChange = {
             apiKey = it
             settingsBuilder.apiKey = it
             onSettingsChange(settingsBuilder.build())
-        }, modifier = Modifier.fillMaxWidth(), label = { Text("API Key") })
+        }, label = "API Key")
 
-        OutlinedTextField(value = username, singleLine = true, onValueChange = {
+        DefaultTextField(value = username, onValueChange = {
             username = it
             settingsBuilder.username = it
             onSettingsChange(settingsBuilder.build())
-        }, modifier = Modifier.fillMaxWidth(), label = { Text("Username") })
+        }, label = "Username")
     }
 
 }

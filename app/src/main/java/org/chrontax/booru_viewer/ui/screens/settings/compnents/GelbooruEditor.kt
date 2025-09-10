@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import org.chrontax.booru_viewer.data.preferences.proto.GelbooruSettings
+import org.chrontax.booru_viewer.ui.components.DefaultTextField
 
 @Composable
 fun GelbooruEditor(settings: GelbooruSettings, onSettingsChange: (GelbooruSettings) -> Unit) {
@@ -19,11 +20,11 @@ fun GelbooruEditor(settings: GelbooruSettings, onSettingsChange: (GelbooruSettin
     var userId by remember(settings) { mutableStateOf(settings.userId) }
 
     Column {
-        OutlinedTextField(value = apiKey, singleLine = true, onValueChange = {
+        DefaultTextField(value = apiKey, onValueChange = {
             apiKey = it
             settingsBuilder.apiKey = it
             onSettingsChange(settingsBuilder.build())
-        }, modifier = Modifier.fillMaxWidth(), label = { Text("API Key") })
+        }, label = "API Key")
 
         OutlinedTextField(value = userId, singleLine = true, onValueChange = {
             userId = it
