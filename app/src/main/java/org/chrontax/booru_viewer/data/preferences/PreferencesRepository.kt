@@ -19,6 +19,10 @@ interface PreferencesRepository {
     suspend fun addBooruSite(booruSite: BooruSite)
 
     /**
+     * Removes the booru site with the given ID and all associated tabs.
+     * If it was the only site, a new default site will be created.
+     * If the removed site is associated with the currently selected tab, another tab will be selected automatically.
+     * If it was the only tab, a new default tab will be created and selected
      * @throws NoSuchElementException if no site with the given ID exists.
      */
     suspend fun removeBooruSite(id: String)
@@ -31,6 +35,7 @@ interface PreferencesRepository {
 
     /**
      * Sets the maximum number of posts to fetch per page.
+     * @throws IllegalArgumentException if [limit] is less than 1.
      */
     suspend fun setPageLimit(limit: Int)
 
@@ -51,12 +56,15 @@ interface PreferencesRepository {
     suspend fun addTab(tab: Tab)
 
     /**
+     * Removes the tab with the given ID.
+     * If the removed tab is currently selected, another tab will be selected automatically.
+     * If it was the only tab, a new default tab will be created and selected.
      * @throws NoSuchElementException if no tab with the given ID exists.
      */
     suspend fun removeTab(id: String)
 
     /**
-     * @throws NoSuchElementException if no tab with the given ID exists.
+     * @throws NoSuchElementException if no tab or booru with the given ID exists.
      */
     suspend fun updateTab(tab: Tab)
 

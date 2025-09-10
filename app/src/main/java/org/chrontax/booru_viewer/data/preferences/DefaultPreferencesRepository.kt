@@ -8,6 +8,7 @@ import org.chrontax.booru_viewer.data.preferences.proto.PreviewQuality
 import org.chrontax.booru_viewer.data.preferences.proto.Tab
 import org.chrontax.booru_viewer.util.checkUrl
 import javax.inject.Inject
+import kotlin.uuid.Uuid
 
 class DefaultPreferencesRepository @Inject constructor(private val preferencesDataStore: DataStore<Preferences>) :
     PreferencesRepository {
@@ -30,7 +31,37 @@ class DefaultPreferencesRepository @Inject constructor(private val preferencesDa
             if (siteIndex == -1) {
                 throw NoSuchElementException("No site with ID '$id' exists.")
             }
-            currentPreferences.toBuilder().removeSites(siteIndex).build()
+            val builder = currentPreferences.toBuilder().removeSites(siteIndex)
+            var removedSelectedTab = false
+            var removed = 0
+            currentPreferences.tabsList.forEachIndexed { index, tab ->
+                if (tab.booruId != id) return@forEachIndexed
+                if (tab.id == currentPreferences.selectedTabId) {
+                    removedSelectedTab = true
+                }
+                builder.removeTabs(index - removed++)
+            }
+            if (removedSelectedTab) {
+                if (builder.tabsCount > 0) {
+                    builder.selectedTabId = builder.getTabs(0).id
+                } else {
+                    val newTabId = Uuid.random().toString()
+                    val firstBooruId = if (builder.sitesCount > 0) builder.getSites(0).id else {
+                        val newBooruId = Uuid.random().toString()
+                        builder.addSites(
+                            BooruSite.newBuilder().setId(newBooruId).setName("Danbooru")
+                                .setUrl("https://danbooru.donmai.us").build()
+                        )
+                        newBooruId
+                    }
+                    builder.addTabs(
+                        Tab.newBuilder().setId(newTabId).setBooruId(firstBooruId).setName("Default")
+                            .build()
+                    )
+                    builder.selectedTabId = newTabId
+                }
+            }
+            builder.build()
         }
     }
 
@@ -42,14 +73,16 @@ class DefaultPreferencesRepository @Inject constructor(private val preferencesDa
             if (siteIndex == -1) {
                 throw NoSuchElementException("No site with ID '${booruSite.id}' exists.")
             }
-            currentPreferences.toBuilder()
-                .setSites(siteIndex, booruSite).build()
+            currentPreferences.toBuilder().setSites(siteIndex, booruSite).build()
         }
     }
 
     override suspend fun setPageLimit(limit: Int) {
+        if (limit < 1) {
+            throw IllegalArgumentException("Page limit must be greater than zero.")
+        }
         preferencesDataStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder().setPageLimit(limit).build()
+            currentPreferences.toBuilder().setPageLimit(limit.toInt()).build()
         }
     }
 
@@ -83,7 +116,21 @@ class DefaultPreferencesRepository @Inject constructor(private val preferencesDa
             if (tabIndex == -1) {
                 throw NoSuchElementException("No tab with ID '$id' exists.")
             }
-            currentPreferences.toBuilder().removeTabs(tabIndex).build()
+            val builder = currentPreferences.toBuilder().removeTabs(tabIndex)
+            if (id == currentPreferences.selectedTabId) {
+                if (builder.tabsCount > 0) {
+                    builder.selectedTabId = builder.getTabs(0).id
+                } else {
+                    val newTabId = Uuid.random().toString()
+                    val firstBooruId = builder.getSites(0).id
+                    builder.addTabs(
+                        Tab.newBuilder().setId(newTabId).setBooruId(firstBooruId).setName("Default")
+                            .addAllTags(builder.defaultTagsList).build()
+                    )
+                    builder.selectedTabId = newTabId
+                }
+            }
+            builder.build()
         }
     }
 
@@ -92,6 +139,9 @@ class DefaultPreferencesRepository @Inject constructor(private val preferencesDa
             val tabIndex = currentPreferences.tabsList.indexOfFirst { it.id == tab.id }
             if (tabIndex == -1) {
                 throw NoSuchElementException("No tab with ID '${tab.id}' exists.")
+            }
+            if (currentPreferences.sitesList.none { it.id == tab.booruId }) {
+                throw NoSuchElementException("No booru with ID '${tab.booruId}' exists.")
             }
             currentPreferences.toBuilder().setTabs(tabIndex, tab).build()
         }
