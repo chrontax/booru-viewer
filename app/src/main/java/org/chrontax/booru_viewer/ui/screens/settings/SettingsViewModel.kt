@@ -14,6 +14,8 @@ import org.chrontax.booru_viewer.data.preferences.proto.BooruType
 import org.chrontax.booru_viewer.data.preferences.proto.DanbooruSettings
 import org.chrontax.booru_viewer.data.preferences.proto.PreviewQuality
 import org.chrontax.booru_viewer.data.preferences.proto.Tab
+import org.chrontax.booru_viewer.util.newDefaultDanbooruSite
+import org.chrontax.booru_viewer.util.newTab
 import javax.inject.Inject
 import kotlin.uuid.Uuid
 
@@ -38,10 +40,7 @@ class SettingsViewModel @Inject constructor(private val preferencesRepository: P
     }
 
     fun createBooruSite() {
-        val newBooru =
-            BooruSite.newBuilder().setId(Uuid.random().toString()).setType(BooruType.DANBOORU)
-                .setName("New Booru").setDanbooruSettings(DanbooruSettings.newBuilder().build())
-                .setUrl("https://danbooru.donmai.us").build()
+        val newBooru = newDefaultDanbooruSite(name = "New Booru")
         selectBooruSite(newBooru)
         viewModelScope.launch {
             preferencesRepository.addBooruSite(newBooru)
@@ -62,25 +61,7 @@ class SettingsViewModel @Inject constructor(private val preferencesRepository: P
         viewModelScope.launch {
             preferencesRepository.removeBooruSite(id)
             if (selectedBooruSite.value?.id == id) {
-                if (booruSites.first().isEmpty()) {
-                    createBooruSite()
-                }
                 _selectedBooruSite.value = booruSites.first().first()
-            }
-            val tabsToDelete =
-                preferencesRepository.preferencesFlow.first().tabsList.filter { it.booruId == id }
-            tabsToDelete.forEach {
-                preferencesRepository.removeTab(it.id)
-            }
-            val tabCount = preferencesRepository.preferencesFlow.first().tabsCount
-            if (tabCount == 0) {
-                val firstBooruId = booruSites.first().first().id
-                preferencesRepository.addTab(
-                    Tab.newBuilder().setName("Default").setBooruId(firstBooruId)
-                        .setId(Uuid.random().toString())
-                        .addAllTags(preferencesRepository.preferencesFlow.first().defaultTagsList)
-                        .build()
-                )
             }
         }
     }

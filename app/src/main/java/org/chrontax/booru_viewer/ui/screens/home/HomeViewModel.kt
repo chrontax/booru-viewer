@@ -1,5 +1,6 @@
 package org.chrontax.booru_viewer.ui.screens.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.chrontax.booru_viewer.data.model.Post
@@ -19,8 +21,8 @@ import org.chrontax.booru_viewer.data.preferences.proto.BooruSite
 import org.chrontax.booru_viewer.data.preferences.proto.Tab
 import org.chrontax.booru_viewer.data.source.BooruSource
 import org.chrontax.booru_viewer.data.source.BooruSourceFactory
+import org.chrontax.booru_viewer.util.newTab
 import javax.inject.Inject
-import kotlin.uuid.Uuid
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -46,8 +48,8 @@ class HomeViewModel @Inject constructor(
     val posts = _posts.asStateFlow()
 
     val tags = selectedTab.map { it.tagsList }.stateIn(
-            scope = viewModelScope, started = SharingStarted.Eagerly, initialValue = emptyList()
-        )
+        scope = viewModelScope, started = SharingStarted.Eagerly, initialValue = emptyList()
+    )
 
     private var _selectedBooruName = MutableStateFlow("")
     val selectedBooruName = _selectedBooruName.asStateFlow()
@@ -96,7 +98,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             preferencesRepository.updateTab(
                 selectedTab.value.toBuilder().clearTags().addAllTags(
-                tags.value.filter { it != tag }).build())
+                    tags.value.filter { it != tag }).build()
+            )
             refreshPosts()
         }
     }
@@ -144,10 +147,7 @@ class HomeViewModel @Inject constructor(
     fun createTab() {
         viewModelScope.launch {
             val tags = preferencesRepository.preferencesFlow.first().defaultTagsList
-            preferencesRepository.addTab(
-                Tab.newBuilder().setName("New Tab").addAllTags(tags).setBooruId(selectedBooruId)
-                    .setId(Uuid.random().toString()).build()
-            )
+            preferencesRepository.addTab(newTab(tags = tags, booruId = selectedBooruId))
         }
     }
 
@@ -171,13 +171,11 @@ class HomeViewModel @Inject constructor(
             var newSelectedTabId: String
 
             if (prefs.tabsCount == 1) {
-                newSelectedTabId = Uuid.random().toString()
-                preferencesRepository.addTab(
-                    Tab.newBuilder().setName("Default").setBooruId(selectedBooruId)
-                        .setId(newSelectedTabId)
-                        .addAllTags(preferencesRepository.preferencesFlow.first().defaultTagsList)
-                        .build()
+                val newTab = newTab(booruId = selectedBooruId, name = "Default",
+                    tags = prefs.defaultTagsList
                 )
+                newSelectedTabId = newTab.id
+                preferencesRepository.addTab(newTab)
             } else {
                 val newSelectedTab = prefs.tabsList.first { it.id != prefs.selectedTabId }
                 newSelectedTabId = newSelectedTab.id

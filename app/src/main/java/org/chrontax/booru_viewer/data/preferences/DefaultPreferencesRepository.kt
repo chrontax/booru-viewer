@@ -7,6 +7,8 @@ import org.chrontax.booru_viewer.data.preferences.proto.Preferences
 import org.chrontax.booru_viewer.data.preferences.proto.PreviewQuality
 import org.chrontax.booru_viewer.data.preferences.proto.Tab
 import org.chrontax.booru_viewer.util.checkUrl
+import org.chrontax.booru_viewer.util.newDefaultDanbooruSite
+import org.chrontax.booru_viewer.util.newTab
 import javax.inject.Inject
 import kotlin.uuid.Uuid
 
@@ -45,20 +47,16 @@ class DefaultPreferencesRepository @Inject constructor(private val preferencesDa
                 if (builder.tabsCount > 0) {
                     builder.selectedTabId = builder.getTabs(0).id
                 } else {
-                    val newTabId = Uuid.random().toString()
                     val firstBooruId = if (builder.sitesCount > 0) builder.getSites(0).id else {
-                        val newBooruId = Uuid.random().toString()
-                        builder.addSites(
-                            BooruSite.newBuilder().setId(newBooruId).setName("Danbooru")
-                                .setUrl("https://danbooru.donmai.us").build()
-                        )
-                        newBooruId
+                        val newBooru = newDefaultDanbooruSite()
+                        builder.addSites(newBooru)
+                        newBooru.id
                     }
-                    builder.addTabs(
-                        Tab.newBuilder().setId(newTabId).setBooruId(firstBooruId).setName("Default")
-                            .build()
+                    val newTab = newTab(booruId = firstBooruId, name = "Default",
+                        tags = builder.defaultTagsList
                     )
-                    builder.selectedTabId = newTabId
+                    builder.addTabs(newTab)
+                    builder.selectedTabId = newTab.id
                 }
             }
             builder.build()
