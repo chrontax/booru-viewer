@@ -37,7 +37,6 @@ fun BooruEditor(
     var url by remember(booruSite) { mutableStateOf(booruSite.url) }
     var type by remember(booruSite) { mutableStateOf(booruSite.type) }
     var isUrlValid by remember(booruSite) { mutableStateOf(true) }
-    var typeDropdownExpanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         DefaultTextField(
@@ -57,19 +56,14 @@ fun BooruEditor(
         DropdownButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp), value = type.displayName()
-        ) {
-            BooruType.entries.forEach { booruType ->
-                if (booruType == BooruType.UNRECOGNIZED) return@forEach
-                DropdownMenuItem(text = {
-                    Text(booruType.displayName())
-                }, onClick = {
-                    type = booruType
-                    booruBuilder.type = booruType
-                    typeDropdownExpanded = false
-                })
-            }
-        }
+                .padding(16.dp),
+            value = type.displayName(),
+            options = BooruType.entries.filter { it != BooruType.UNRECOGNIZED },
+            onOptionSelected = {
+                type = it
+                booruBuilder.type = it
+            },
+            displayName = { it.displayName() })
 
         when (type) {
             BooruType.DANBOORU -> DanbooruEditor(booruSite.danbooruSettings, onSettingsChange = {

@@ -17,7 +17,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,8 +58,7 @@ fun SettingsScreen(
                 previewQuality,
                 onPageLimitChange = { settingsViewModel.setPageLimit(it) },
                 onDefaultTagsChange = { settingsViewModel.setDefaultTags(it) },
-                onPreviewQualityChange = { settingsViewModel.setPreviewQuality(it) }
-            )
+                onPreviewQualityChange = { settingsViewModel.setPreviewQuality(it) })
 
             BooruSettings(
                 selectedBooruSite,
@@ -68,8 +66,7 @@ fun SettingsScreen(
                 onCreate = { settingsViewModel.createBooruSite() },
                 onDelete = { settingsViewModel.deleteBooruSite(it) },
                 onSelect = { settingsViewModel.selectBooruSite(it) },
-                onUpdate = { settingsViewModel.updateBooruSite(it) }
-            )
+                onUpdate = { settingsViewModel.updateBooruSite(it) })
         }
     }
 }
@@ -100,14 +97,11 @@ fun GeneralSettings(
     )
 
     DefaultTextField(
-        value = defaultTagsInput,
-        label = "Default tags",
-        onValueChange = {
+        value = defaultTagsInput, label = "Default tags", onValueChange = {
             defaultTagsInput = it
             val newTags = it.split(" ").filter { tag -> tag.isNotEmpty() }
             onDefaultTagsChange(newTags)
-        }
-    )
+        })
 
     Text("Preview quality:")
     DropdownButton(
@@ -115,14 +109,9 @@ fun GeneralSettings(
             .fillMaxWidth()
             .padding(16.dp),
         value = previewQuality.displayName(),
-    ) {
-        PreviewQuality.entries.forEach { quality ->
-            if (quality == PreviewQuality.UNRECOGNIZED) return@forEach
-            DropdownMenuItem(text = { Text(quality.displayName()) }, onClick = {
-                onPreviewQualityChange(quality)
-            })
-        }
-    }
+        options = PreviewQuality.entries.filter { it != PreviewQuality.UNRECOGNIZED },
+        onOptionSelected = { onPreviewQualityChange(it) },
+        displayName = { it.displayName() })
 }
 
 @Composable
@@ -137,12 +126,10 @@ fun BooruSettings(
     Text("Booru Configuration", modifier = Modifier.padding(16.dp), fontSize = 20.sp)
     Row(modifier = Modifier.fillMaxWidth()) {
         Button(
-            modifier = Modifier.padding(16.dp),
-            onClick = onCreate) {
+            modifier = Modifier.padding(16.dp), onClick = onCreate
+        ) {
             Icon(
-                Icons.Filled.Add,
-                contentDescription = "Add Booru",
-                modifier = Modifier.size(16.dp)
+                Icons.Filled.Add, contentDescription = "Add Booru", modifier = Modifier.size(16.dp)
             )
         }
 
@@ -150,20 +137,15 @@ fun BooruSettings(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            value = selectedBooruSite?.name ?: "Select Booru"
-        ) {
-            booruSites.forEach { booruSite ->
-                DropdownMenuItem(text = { Text(booruSite.name) }, onClick = {
-                    onSelect(booruSite)
-                })
-            }
-        }
+            value = selectedBooruSite?.name ?: "Select Booru",
+            options = booruSites,
+            onOptionSelected = { onSelect(it) },
+            displayName = { it.name })
     }
 
     if (selectedBooruSite != null) {
         BooruEditor(
-            booruSite = selectedBooruSite,
-            onDelete = onDelete,
-            onSubmit = onUpdate)
+            booruSite = selectedBooruSite, onDelete = onDelete, onSubmit = onUpdate
+        )
     }
 }
