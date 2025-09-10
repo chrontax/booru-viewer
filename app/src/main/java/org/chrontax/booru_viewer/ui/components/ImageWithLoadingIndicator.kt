@@ -38,7 +38,7 @@ fun ImageWithLoadingIndicator(
 
         if (isError) {
             Image(
-                painter = androidx.compose.ui.res.painterResource(id = R.drawable.ic_launcher_foreground), // TODO: replace with actual error image
+                painter = androidx.compose.ui.res.painterResource(id = R.drawable.ic_error),
                 contentDescription = "Error loading image",
                 modifier = Modifier
                     .align(Alignment.Center)
